@@ -95,7 +95,7 @@ Test results with **3,000,000** orders arriving almost simultaneously:
 
 ---
 
-## Benchmark Chart
+## Results
 
 ![Go Result](docs/Go.png)
 ![Python Result](docs/Python.png)
