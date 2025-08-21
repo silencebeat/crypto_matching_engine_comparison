@@ -1,0 +1,32 @@
+# === Rust ===
+/rust/target/
+/rust/Cargo.lock
+
+# === Go ===
+/go/bin/
+/go/pkg/
+*.exe
+*.test
+
+# === Python ===
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pkl
+*.egg-info/
+.venv/
+.env/
+
+# === Node / TypeScript ===
+/ts-node/node_modules/
+/ts-node/dist/
+/ts-node/package-lock.json
+/ts-node/yarn.lock
+
+# === Editor / OS ===
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
