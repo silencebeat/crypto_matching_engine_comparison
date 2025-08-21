@@ -1,26 +1,26 @@
-# Crypto Matching Engine – Multi Bahasa (Rust, Go, Python, TypeScript)
+# Crypto Matching Engine – Multi-Language (Rust, Go, Python, TypeScript)
 
-Mesin matching sederhana untuk orderbook **limit** dan **market** (BUY/SELL, FIFO per price level).
-Fokus untuk *single-symbol* (mis. BTC/USDT). Cocok untuk uji performa (contoh generator 3 juta order).
+A simple matching engine for **limit** and **market** orders (BUY/SELL, FIFO per price level).
+Focused on a *single-symbol* (e.g., BTC/USDT). Suitable for performance testing (e.g., generator of 3 million orders).
 
-> Catatan: Implementasi ini **bukan** produksi. Tidak ada persistence, risk checks, atau multi-symbol sharding.
-> Desain single-threaded di bagian matching (umumnya bursa juga single-thread per symbol untuk keadilan FIFO),
-> dengan opsi *producer-consumer* via channel (terutama di Go).
+> Note: This implementation is **not production-ready**. No persistence, risk checks, or multi-symbol sharding.
+> Single-threaded matching (most exchanges are also single-thread per symbol for fair FIFO),
+> dwith optional *producer-consumer* via channels (mainly in Go).
 
-## Fitur Utama
+## Key Features
 - Order type: `Limit`, `Market`
 - Side: `Buy`, `Sell`
-- Matching: price-time priority (FIFO), partial fill, auto-removal level kosong
-- Statistik ringkas: jumlah matched, volume, latency kasar
-- Harness beban (opsional): generator N order (mis. 3,000,000) yang masuk hampir bersamaan
+- Matching: price-time priority (FIFO), partial fills, auto-removal of empty price levels
+- Summary statistics: matched count, volume, rough latency
+- Load harness (optional): generate N orders (e.g., 3,000,000) arriving nearly simultaneously
 
-## Struktur
-- `rust/` – implementasi cepat dengan `BTreeMap` + `VecDeque`
-- `go/` – implementasi cepat dengan slice + channel producer-consumer
-- `python/` – implementasi referensi (lebih sederhana)
-- `ts-node/` – implementasi referensi Node.js/TypeScript
+## Structure
+- `rust/` – high-performance implementation using `BTreeMap`+ `VecDeque`
+- `go/` – high-performance implementation using slices + producer-consumer channels
+- `python/` – reference implementation (simpler)
+- `ts-node/` – Node.js/TypeScript reference implementation
 
-## Cara Cepat Benchmark (contoh 3 juta order)
+## Quick Benchmark Example (3 Million Orders)
 ### Rust
 ```bash
 cd rust
@@ -46,26 +46,26 @@ npm run build
 node dist/bench.js 3000000
 ```
 
-## Parameter & Perilaku
-- Default symbol: `BTC/USDT` (hanya label)
-- Distribusi:
-  - Sisi: 50/50 BUY/SELL
-  - Tipe order: 90% Limit, 10% Market (ubah di argumen/hardcode)
-  - Harga acuan: 100_000 (bisa acak ±5%)
-  - Size: 1 s/d 3 (random)
-- Market order *menyapu* book lawan hingga terpenuhi atau book habis.
-- Limit order ditempatkan di book bila tidak terisi penuh.
+## Parameters & Behavior
+- Default symbol: `BTC/USDT` (label only)
+- Distribution:
+  - Side: 50/50 BUY/SELL
+  - Order type: 90% Limit, 10% Market (adjust via args/hardcode)
+  - Base price: 100,000 (±5% random)
+  - Size: 1–3 (random)
+- Market orders *sweep* the opposite book until fully filled or book exhausted.
+- Limit orders are placed in the book if not fully filled.
 
-## Catatan Desain
-- **Single-thread matching** per simbol untuk deterministic FIFO.
-- **Go** menggunakan *channel* untuk mengantri order (mensimulasikan “hampir barengan”).
-- **Rust** memakai `BTreeMap` (asks menaik, bids menurun) + `VecDeque` untuk FIFO.
-- **Python/TS**: lebih sederhana untuk dibaca dan dicek.
+## Design Notes
+- **Single-thread matching** per symbol for deterministic FIFO.
+- **Go** uses *channels* to queue orders (simulating “nearly simultaneous” arrival).
+- **Rust** Rust uses `BTreeMap` (asks ascending, bids descending) + `VecDeque` for FIFO.
+- **Python/TS**: simpler, easier to read and verify.
 
 
 ## Benchmark Results
 
-Hasil uji coba dengan **3.000.000 order** masuk hampir bersamaan:
+Test results with **3,000,000** orders arriving almost simultaneously:
 
 | Language      | Time           | Trades   | Filled Orders | Filled Qty | Throughput             |
 |---------------|---------------:|---------:|--------------:|-----------:|------------------------|
@@ -88,10 +88,10 @@ Hasil uji coba dengan **3.000.000 order** masuk hampir bersamaan:
 
 ## Notes
 
-- Rust jauh lebih cepat karena compile ke native code dengan optimisasi agresif.  
-- Python masih cukup cepat untuk prototyping berkat deque & dict, tapi kalah jauh dengan Rust.  
-- Go performa stabil, tapi kalah dengan Rust karena struktur data & GC.  
-- Node.js paling lambat untuk kasus ini (single-thread event loop + JS overhead).  
+- **Rust** is much faster due to native compilation with aggressive optimizations. 
+- **Python** is still fast enough for prototyping thanks to deque & dict, but much slower than Rust. 
+- **Go** shows stable performance but is slower than Rust due to data structures & GC. 
+- **Node.js** is the slowest in this case (single-threaded event loop + JS overhead).
 
 ---
 
